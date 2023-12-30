@@ -6,6 +6,10 @@ $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 $scriptPath = $scriptPath + "\ticketinglog.txt"
 Start-Transcript -path $scriptPath | out-null #Start-Transcript -path $scriptPath -append | out-null
 
+
+#update to include checking for sub-types like standard, normal, emergency, or expedited changes.
+
+
 #Specify prefix (ALWAYS in UPPER!!!)
 $CHGprefix = "CHG"
 $INCprefix = "INC"
