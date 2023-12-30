@@ -122,6 +122,8 @@ namespace CyberArk.Samples
                 //TODO: Decide what to do if ticketing system is unavailable. You can still return a success code and include this information in ticketingOutput.TicketAuditOutput
                 //ticketingOutput.UserMessage = OutputLog(parameters.TicketId);
 
+                //update to fail open, but log that we attempted in logs.
+
             }
             else
             {

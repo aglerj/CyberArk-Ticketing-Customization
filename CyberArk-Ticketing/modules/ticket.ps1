@@ -10,6 +10,8 @@ Start-Transcript -path $scriptPath | out-null #Start-Transcript -path $scriptPat
 $CHGprefix = "CHG"
 $INCprefix = "INC"
 $INCcreate = "CINC"
+$REQprefix = "REQ"
+$RITMprefix = "RITM"
 
 
 # Base64Encode
@@ -102,6 +104,36 @@ if ($TicketID.Substring(0, [Math]::Min($TicketID.Length, $CHGprefix.Length)).ToU
 	
     #write-host $restURL
 }
+elseif ($TicketID.Substring(0, [Math]::Min($TicketID.Length, $REQprefix.Length)).ToUpper() -eq $REQprefix)
+{
+    $strActionName =$REQprefix
+
+    if ($APIURL.Substring($APIURL.get_Length()-1) -ne '/')
+    {
+        $restURL = $APIURL + "/request?ticketid=eq." + ($TicketID.substring($REQprefix.Length)).tolower()
+    }
+    else
+    {
+        $restURL = $APIURL + "request?ticketid=eq." + ($TicketID.substring($REQprefix.Length)).tolower()
+    }
+	
+    #write-host $restURL
+}
+elseif ($TicketID.Substring(0, [Math]::Min($TicketID.Length, $RITMprefix.Length)).ToUpper() -eq $RITMprefix)
+{
+    $strActionName =$RITMprefix
+
+    if ($APIURL.Substring($APIURL.get_Length()-1) -ne '/')
+    {
+        $restURL = $APIURL + "/RITM?ticketid=eq." + ($TicketID.substring($RITMprefix.Length)).tolower()
+    }
+    else
+    {
+        $restURL = $APIURL + "RITM?ticketid=eq." + ($TicketID.substring($RITMprefix.Length)).tolower()
+    }
+	
+    #write-host $restURL
+}
 elseif ($TicketID.Substring(0, [Math]::Min($TicketID.Length, $INCprefix.Length)).ToUpper() -eq $INCprefix)
 {
     $strActionName = $INCprefix
@@ -173,6 +205,74 @@ switch($strActionName)
             }
         }
     }
+    $REQprefix
+    {    
+        $connection = 0
+        try
+        {
+            (Invoke-WebRequest -Uri "$restURL" -ContentType application/json) | Out-Null
+            #write-host $restURL
+            $connection = 1
+        }
+        catch
+        {
+            $ToCyberArk.errormsg = 64encode 'Cannot connect to Ticketing System.'
+        }
+
+        if ($connection)
+        {
+
+            $respond = (Invoke-RestMethod -Method Get -Uri "$restURL" -ContentType application/json)
+            #write-host $restURL
+            if ($respond.get_length() -eq 0)
+            {
+                $ToCyberArk.exists = 64encode 'false'
+            }
+            else
+            {
+                $ToCyberArk.exists = 64encode 'true'
+                $ToCyberArk.requester = 64encode (magic $respond.requester)
+                $ToCyberArk.approver = 64encode (magic $respond.approver)
+                $ToCyberArk.obj = 64encode (magic $respond.obj)
+                $ToCyberArk.vts = 64encode (magic $respond.validstart)
+                $ToCyberArk.vte = 64encode (magic $respond.validend)
+            }
+        }
+    }
+    $RITMprefix
+    {    
+        $connection = 0
+        try
+        {
+            (Invoke-WebRequest -Uri "$restURL" -ContentType application/json) | Out-Null
+            #write-host $restURL
+            $connection = 1
+        }
+        catch
+        {
+            $ToCyberArk.errormsg = 64encode 'Cannot connect to Ticketing System.'
+        }
+
+        if ($connection)
+        {
+
+            $respond = (Invoke-RestMethod -Method Get -Uri "$restURL" -ContentType application/json)
+            #write-host $restURL
+            if ($respond.get_length() -eq 0)
+            {
+                $ToCyberArk.exists = 64encode 'false'
+            }
+            else
+            {
+                $ToCyberArk.exists = 64encode 'true'
+                $ToCyberArk.requester = 64encode (magic $respond.requester)
+                $ToCyberArk.approver = 64encode (magic $respond.approver)
+                $ToCyberArk.obj = 64encode (magic $respond.obj)
+                $ToCyberArk.vts = 64encode (magic $respond.validstart)
+                $ToCyberArk.vte = 64encode (magic $respond.validend)
+            }
+        }
+    }        
     $INCprefix
     {
         $connection = 0
